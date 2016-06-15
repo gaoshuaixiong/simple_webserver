@@ -3,8 +3,33 @@
 #include <iostream>
 #include <string.h>
 #include <unistd.h>
-
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include "def.h"
+#include "riot.h"
 using namespace std;
+
+void doit(int fd)
+{
+	int is_static;
+	struct stat sbuf;
+	char buf[MAXLINE],method[MAXLINE],uri[MAXLINE],version[MAXLINE];
+	char filename[MAXLINE],cgiargs[MAXLINE];
+	rio_t rio;
+  	
+  	rio_readinitb(&rio,fd);
+  	rio_readlineb(&rio,buf,MAXLINE);
+  	sscanf(buf,"%s %s %s",method,uri,version);
+  	if(strcasecmp(method,"GET"))
+  	{
+  		clienterror(fd,method,"501","Not Implemented","Tiny does not implement this method");
+  		return;
+  	}
+  	read_requesthdrs(&rio);
+
+}
+
 int open_listenfd(int port)
 {
 	int listenfd,optval = 1;
@@ -67,7 +92,3 @@ void Close(unsigned int connfd)
 }
 
 
-void doit(int fd)
-{
-	
-}
